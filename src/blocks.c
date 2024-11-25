@@ -1403,7 +1403,8 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
   // the open paragraph.
   if (parser->current != last_matched_container &&
       container == last_matched_container && (!parser->blank || (parser->options & CMARK_OPT_PRESERVE_WHITESPACE)) &&
-      S_type(parser->current) == CMARK_NODE_PARAGRAPH) {
+      S_type(parser->current) == CMARK_NODE_PARAGRAPH &&
+      (parser->options & CMARK_OPT_INLINE_ONLY)) {
     add_line(parser->current, input, parser);
   } else { // not a lazy continuation
     // Finalize any blocks that were not matched and set cur to container:

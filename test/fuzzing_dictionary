@@ -51,6 +51,7 @@ underscore="_"
 # GFM specific
 
 strikethrough="~~~strike~~~"
+highlight="::highlight::"
 user_mention="@octocat"
 email_mention="octocat@github.com"
 http="http://"

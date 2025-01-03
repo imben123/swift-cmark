@@ -1321,7 +1321,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       /* TODO: static */
       memcpy(&((*container)->as.list), data, sizeof(*data));
       parser->mem->free(data);
-    } else if (indented && !maybe_lazy && !parser->blank) {
+    } else if (indented && !parser->blank) {
       S_advance_offset(parser, input, CODE_INDENT, true);
       *container = add_child(parser, *container, CMARK_NODE_CODE_BLOCK,
                              parser->offset + 1);

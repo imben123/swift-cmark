@@ -1224,19 +1224,6 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
       (*container)->as.html_block_type = matched;
       // note, we don't adjust parser->offset because the tag is part of the
       // text
-    } else if (!indented && cont_type == CMARK_NODE_PARAGRAPH &&
-               (lev =
-                    scan_setext_heading_line(input, parser->first_nonspace))) {
-      // finalize paragraph, resolving reference links
-      has_content = resolve_reference_link_definitions(parser, *container);
-
-      if (has_content) {
-
-        (*container)->type = (uint16_t)CMARK_NODE_HEADING;
-        (*container)->as.heading.level = lev;
-        (*container)->as.heading.setext = true;
-        S_advance_offset(parser, input, input->len - 1 - parser->offset, false);
-      }
     } else if (!indented &&
                !(cont_type == CMARK_NODE_PARAGRAPH && !all_matched) &&
 	       (parser->thematic_break_kill_pos <= parser->first_nonspace) &&

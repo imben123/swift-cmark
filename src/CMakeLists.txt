@@ -23,6 +23,7 @@ add_library(libcmark-gfm
   plaintext.c
   plugin.c
   references.c
+  refmap.c
   registry.c
   render.c
   scanners.c
@@ -81,6 +82,7 @@ install(FILES
   include/parser.h
   include/plugin.h
   include/references.h
+  include/refmap.h
   include/registry.h
   include/render.h
   include/scanners.h

@@ -1739,6 +1739,8 @@ static void spnl(subject *subj) {
 // Return 0 if no reference found, otherwise position of subject
 // after reference is parsed.
 bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_chunk *input,
+                                       int start_line, int start_column,
+                                       int end_line, int end_column,
                                        cmark_map *refmap) {
   subject subj;
 
@@ -1796,7 +1798,7 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_chunk *input,
     }
   }
   // insert reference into refmap
-  cmark_reference_create(refmap, &lab, &url, &title);
+  cmark_reference_create(refmap, &lab, &url, &title, start_line, start_column, end_line, end_column);
   return subj.pos;
 }
 

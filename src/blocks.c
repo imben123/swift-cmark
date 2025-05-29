@@ -294,7 +294,11 @@ static bool resolve_reference_link_definitions(
   cmark_strbuf *node_content = &b->content;
   cmark_chunk chunk = {node_content->ptr, node_content->size, 0};
   while ((chunk.len && chunk.data[0] == '[' &&
-            (pos = cmark_parse_reference_inline(parser->mem, &chunk, parser->refmap))) ||
+            (pos = cmark_parse_reference_inline(parser->mem, &chunk,
+                                                cmark_node_get_start_line(b),
+                                                cmark_node_get_start_column(b),
+                                                cmark_node_get_end_line(b),
+                                                cmark_node_get_end_column(b), parser->refmap))) ||
          (chunk.len && chunk.data[0] == '^' && chunk.data[1] == '[' &&
             (pos = cmark_parse_reference_attributes_inline(parser->mem, &chunk, parser->refmap)))) {
 
@@ -1542,7 +1546,7 @@ finished:
   cmark_strbuf_clear(&parser->curline);
 }
 
-cmark_node *cmark_parser_finish(cmark_parser *parser) {
+cmark_node *cmark_parser_finish_without_reset(cmark_parser *parser) {
   cmark_node *res;
   cmark_llist *extensions;
 
@@ -1580,9 +1584,17 @@ cmark_node *cmark_parser_finish(cmark_parser *parser) {
   res = parser->root;
   parser->root = NULL;
 
-  cmark_parser_reset(parser);
-
   return res;
+}
+
+cmark_node *cmark_parser_finish(cmark_parser *parser) {
+  cmark_node *res = cmark_parser_finish_without_reset(parser);
+  cmark_parser_reset(parser);
+  return res;
+}
+
+void cmark_parser_reset_after_finish(cmark_parser *parser) {
+  cmark_parser_reset(parser);
 }
 
 int cmark_parser_get_line_number(cmark_parser *parser) {

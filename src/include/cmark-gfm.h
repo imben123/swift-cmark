@@ -98,6 +98,7 @@ typedef enum {
 } cmark_list_marker_type;
 
 typedef struct cmark_node cmark_node;
+typedef struct cmark_map cmark_map;
 typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
 typedef struct cmark_syntax_extension cmark_syntax_extension;
@@ -627,10 +628,20 @@ void cmark_parser_free(cmark_parser *parser);
 CMARK_GFM_EXPORT
 void cmark_parser_feed(cmark_parser *parser, const char *buffer, size_t len);
 
+/** Finish parsing and return a pointer to a tree of nodes. Does not reset the parser for reuse.
+ */
+CMARK_GFM_EXPORT
+cmark_node *cmark_parser_finish_without_reset(cmark_parser *parser);
+
 /** Finish parsing and return a pointer to a tree of nodes.
  */
 CMARK_GFM_EXPORT
 cmark_node *cmark_parser_finish(cmark_parser *parser);
+
+/** Resets the parser for reuse
+ */
+CMARK_GFM_EXPORT
+void cmark_parser_reset_after_finish(cmark_parser *parser);
 
 /** Parse a CommonMark document in 'buffer' of length 'len'.
  * Returns a pointer to a tree of nodes.  The memory allocated for
@@ -646,6 +657,10 @@ cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
  */
 CMARK_GFM_EXPORT
 cmark_node *cmark_parse_file(FILE *f, int options);
+
+/** Get the internal reference‐map (do NOT call after cmark_parser_finish). */
+CMARK_GFM_EXPORT
+cmark_map *cmark_parser_get_refmap(cmark_parser *parser);
 
 /**
  * ## Rendering

@@ -21,6 +21,8 @@ void cmark_parse_inlines(cmark_parser *parser,
                          int options);
 
 bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_chunk *input,
+                                       int start_line, int start_column,
+                                       int end_line, int end_column,
                                        cmark_map *refmap);
 
 bufsize_t cmark_parse_reference_attributes_inline(cmark_mem *mem, cmark_chunk *input,

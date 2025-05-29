@@ -6,6 +6,9 @@
 #include "inlines.h"
 #include "chunk.h"
 
+/* forward‐declare the internal map type */
+struct cmark_map;
+
 static void reference_free(cmark_map *map, cmark_map_entry *_ref) {
   cmark_reference *ref = (cmark_reference *)_ref;
   cmark_mem *mem = map->mem;
@@ -19,7 +22,9 @@ static void reference_free(cmark_map *map, cmark_map_entry *_ref) {
 }
 
 void cmark_reference_create(cmark_map *map, cmark_chunk *label,
-                            cmark_chunk *url, cmark_chunk *title) {
+                            cmark_chunk *url, cmark_chunk *title,
+                            int start_line, int start_column,
+                            int end_line, int end_column) {
   cmark_reference *ref;
   unsigned char *reflabel = normalize_map_label(map->mem, label);
 
@@ -38,6 +43,10 @@ void cmark_reference_create(cmark_map *map, cmark_chunk *label,
   ref->entry.age = map->size;
   ref->entry.next = map->refs;
   ref->entry.size = ref->url.len + ref->title.len;
+  ref->start_line = start_line;
+  ref->start_column = start_column;
+  ref->end_line = end_line;
+  ref->end_column = end_column;
 
   map->refs = (cmark_map_entry *)ref;
   map->size++;
@@ -69,4 +78,8 @@ void cmark_reference_create_attributes(cmark_map *map, cmark_chunk *label,
 
 cmark_map *cmark_reference_map_new(cmark_mem *mem) {
   return cmark_map_new(mem, reference_free);
+}
+
+cmark_map *cmark_parser_get_refmap(cmark_parser *parser) {
+  return parser->refmap;
 }

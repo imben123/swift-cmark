@@ -1362,10 +1362,22 @@ static cmark_node *handle_close_bracket(cmark_parser *parser, subject *subj) {
 
   if (found_label) {
     ref = (cmark_reference *)cmark_map_lookup(subj->refmap, &raw_label);
+
+    if (ref == NULL) {
+      // Emulate a reference‐style link whose destination is literally the label itself.
+      // First, clone the raw label into `url`—but we still have `raw_label` at this point.
+      url = chunk_clone(subj->mem, &raw_label);
+      title = cmark_chunk_literal("");
+
+      // Now it’s safe to free raw_label, since we’ve already kept a copy in `url`.
+      cmark_chunk_free(subj->mem, &raw_label);
+      goto match;
+    }
+
     cmark_chunk_free(subj->mem, &raw_label);
   }
 
-  if (ref != NULL && !ref->is_attributes_reference) { // found
+  if (!ref->is_attributes_reference) { // found
     url = chunk_clone(subj->mem, &ref->url);
     title = chunk_clone(subj->mem, &ref->title);
     goto match;

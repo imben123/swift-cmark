@@ -1517,7 +1517,6 @@ static cmark_node *handle_newline(subject *subj) {
   }
   ++subj->line;
   subj->column_offset = -subj->pos;
-  subj->block_offset = 0;
   // skip spaces at beginning of line
   skip_spaces(subj);
   if (nlpos > 1 && peek_at(subj, nlpos - 1) == ' ' &&

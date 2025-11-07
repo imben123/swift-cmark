@@ -1364,6 +1364,22 @@ static cmark_node *handle_close_bracket(cmark_parser *parser, subject *subj) {
     ref = (cmark_reference *)cmark_map_lookup(subj->refmap, &raw_label);
 
     if (ref == NULL) {
+
+      // Check if it was supposed to be a footnote before assuming it a link
+      if (parser->options & CMARK_OPT_FOOTNOTES &&
+          opener->inl_text->next &&
+          opener->inl_text->next->type == CMARK_NODE_TEXT) {
+
+        cmark_chunk *literal = &opener->inl_text->next->as.literal;
+
+        // look back to the opening '[', and skip ahead to the next character
+        // if we're looking at a '[^' sequence, and there is other text or nodes
+        // after the ^, let's call it a footnote reference.
+        if ((literal->len > 0 && literal->data[0] == '^') && (literal->len > 1 || opener->inl_text->next->next)) {
+          goto noMatch;
+        }
+      }
+
       // Emulate a reference‐style link whose destination is literally the label itself.
       // First, clone the raw label into `url`—but we still have `raw_label` at this point.
       url = chunk_clone(subj->mem, &raw_label);
@@ -1377,7 +1393,7 @@ static cmark_node *handle_close_bracket(cmark_parser *parser, subject *subj) {
     cmark_chunk_free(subj->mem, &raw_label);
   }
 
-  if (!ref->is_attributes_reference) { // found
+  if (ref != NULL && !ref->is_attributes_reference) { // found
     url = chunk_clone(subj->mem, &ref->url);
     title = chunk_clone(subj->mem, &ref->title);
     goto match;

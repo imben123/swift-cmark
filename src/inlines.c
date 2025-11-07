@@ -61,7 +61,11 @@ typedef struct subject{
   int line;
   bufsize_t pos;
   int block_offset;
+  int fallback_block_offset;
   int column_offset;
+  int *line_offsets;
+  int line_offsets_len;
+  int line_offset_index;
   cmark_map *refmap;
   delimiter *last_delim;
   bracket *last_bracket;
@@ -89,7 +93,9 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
 static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent, int options);
 
 static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, subject *e,
-                             cmark_chunk *buffer, cmark_map *refmap);
+                             cmark_chunk *buffer, cmark_map *refmap,
+                             int *line_offsets, int line_offsets_len);
+static void S_advance_line(subject *subj);
 static bufsize_t subject_find_special_char(cmark_parser *parser, subject *subj, int options);
 
 // Create an inline with a literal string value.
@@ -194,14 +200,23 @@ static inline cmark_node *make_autolink(subject *subj, int start_column,
 }
 
 static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, subject *e,
-                             cmark_chunk *chunk, cmark_map *refmap) {
+                             cmark_chunk *chunk, cmark_map *refmap,
+                             int *line_offsets, int line_offsets_len) {
   int i;
   e->mem = mem;
   e->input = *chunk;
   e->flags = 0;
   e->line = line_number;
   e->pos = 0;
-  e->block_offset = block_offset;
+  e->fallback_block_offset = block_offset;
+  e->line_offsets = line_offsets;
+  e->line_offsets_len = line_offsets_len;
+  e->line_offset_index = 0;
+  if (line_offsets && line_offsets_len > 0) {
+    e->block_offset = line_offsets[0];
+  } else {
+    e->block_offset = block_offset;
+  }
   e->column_offset = 0;
   e->refmap = refmap;
   e->last_delim = NULL;
@@ -211,6 +226,16 @@ static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, 
   }
   e->scanned_for_backticks = false;
   e->no_link_openers = true;
+}
+
+static void S_advance_line(subject *subj) {
+  int next_index = subj->line_offset_index + 1;
+  if (subj->line_offsets && next_index < subj->line_offsets_len) {
+    subj->block_offset = subj->line_offsets[next_index];
+  } else {
+    subj->block_offset = subj->fallback_block_offset;
+  }
+  subj->line_offset_index = next_index;
 }
 
 static inline int isbacktick(int c) { return (c == '`'); }
@@ -312,6 +337,9 @@ static void adjust_subj_node_newlines(subject *subj, cmark_node *node, int match
     node->end_line += newlines;
     node->end_column = since_newline;
     subj->column_offset = -subj->pos + since_newline + extra;
+    for (int i = 0; i < newlines; ++i) {
+      S_advance_line(subj);
+    }
   }
 }
 
@@ -1532,6 +1560,7 @@ static cmark_node *handle_newline(subject *subj) {
     advance(subj);
   }
   ++subj->line;
+  S_advance_line(subj);
   subj->column_offset = -subj->pos;
   // skip spaces at beginning of line
   skip_spaces(subj);
@@ -1736,7 +1765,8 @@ void cmark_parse_inlines(cmark_parser *parser,
                          int options) {
   subject subj;
   cmark_chunk content = {parent->content.ptr, parent->content.size, 0};
-  subject_from_buf(parser->mem, parent->start_line, parent->start_column - 1 + parent->internal_offset, &subj, &content, refmap);
+  subject_from_buf(parser->mem, parent->start_line, parent->start_column - 1 + parent->internal_offset,
+                   &subj, &content, refmap, parent->line_offsets, parent->line_offsets_len);
   if ((options & CMARK_OPT_PRESERVE_WHITESPACE) == 0)
     cmark_chunk_rtrim(&subj.input);
 
@@ -1778,7 +1808,7 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_chunk *input,
   bufsize_t matchlen = 0;
   bufsize_t beforetitle;
 
-  subject_from_buf(mem, -1, 0, &subj, input, NULL);
+  subject_from_buf(mem, -1, 0, &subj, input, NULL, NULL, 0);
 
   // parse label:
   if (!link_label(&subj, &lab, false) || lab.len == 0)
@@ -1839,7 +1869,7 @@ bufsize_t cmark_parse_reference_attributes_inline(cmark_mem *mem, cmark_chunk *i
   bufsize_t matchlen = 0;
   unsigned char c;
 
-  subject_from_buf(mem, -1, 0, &subj, input, NULL);
+  subject_from_buf(mem, -1, 0, &subj, input, NULL, NULL, 0);
 
   // parse attribute label:
   if (!link_label(&subj, &lab, true) || lab.len == 0) {

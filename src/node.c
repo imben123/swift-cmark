@@ -128,6 +128,9 @@ cmark_node *cmark_node_new_with_mem_and_ext(cmark_node_type type, cmark_mem *mem
   cmark_strbuf_init(mem, &node->content, 0);
   node->type = (uint16_t)type;
   node->extension = extension;
+  node->line_offsets = NULL;
+  node->line_offsets_len = 0;
+  node->line_offsets_alloc = 0;
 
   switch (node->type) {
   case CMARK_NODE_HEADING:
@@ -212,6 +215,10 @@ static void S_free_nodes(cmark_node *e) {
       e->extension->opaque_free_func(e->extension, NODE_MEM(e), e);
 
     free_node_as(e);
+
+    if (e->line_offsets) {
+      NODE_MEM(e)->free(e->line_offsets);
+    }
 
     if (e->last_child) {
       // Splice children into list

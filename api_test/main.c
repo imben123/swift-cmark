@@ -1082,6 +1082,52 @@ static void source_pos(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
+static void source_pos_leading_whitespace(test_batch_runner *runner) {
+  static const char markdown[] = " **foo**\n*foo*";
+
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                      "<document sourcepos=\"1:1-2:5\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                      "  <paragraph sourcepos=\"1:2-2:5\">\n"
+                      "    <strong sourcepos=\"1:2-1:8\">\n"
+                      "      <text sourcepos=\"1:4-1:6\" xml:space=\"preserve\">foo</text>\n"
+                      "    </strong>\n"
+                      "    <softbreak />\n"
+                      "    <emph sourcepos=\"2:1-2:5\">\n"
+                      "      <text sourcepos=\"2:2-2:4\" xml:space=\"preserve\">foo</text>\n"
+                      "    </emph>\n"
+                      "  </paragraph>\n"
+                      "</document>\n",
+         "sourcepos are as expected");
+  free(xml);
+  cmark_node_free(doc);
+}
+
+static void source_pos_leading_whitespace_multiline_inline(test_batch_runner *runner) {
+  static const char markdown[] = " <span\nid=\"foo\">bar</span>\ntext\n";
+
+  const int options = CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS;
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, options);
+  char *xml = cmark_render_xml(doc, options);
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                      "<document sourcepos=\"1:1-3:4\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                      "  <paragraph sourcepos=\"1:2-3:4\">\n"
+                      "    <html_inline sourcepos=\"1:2-2:8\" xml:space=\"preserve\">&lt;span\n"
+                      "id=&quot;foo&quot;&gt;</html_inline>\n"
+                      "    <text sourcepos=\"2:10-2:12\" xml:space=\"preserve\">bar</text>\n"
+                      "    <html_inline sourcepos=\"2:13-2:19\" xml:space=\"preserve\">&lt;/span&gt;</html_inline>\n"
+                      "    <softbreak />\n"
+                      "    <text sourcepos=\"3:1-3:4\" xml:space=\"preserve\">text</text>\n"
+                      "  </paragraph>\n"
+                      "</document>\n",
+         "multiline html inline should reuse recorded block offsets");
+  free(xml);
+  cmark_node_free(doc);
+}
+
 static void source_pos_inlines(test_batch_runner *runner) {
   {
     static const char markdown[] =
@@ -1608,6 +1654,8 @@ int main() {
   test_feed_across_line_ending(runner);
   test_pathological_regressions(runner);
   source_pos(runner);
+  source_pos_leading_whitespace(runner);
+  source_pos_leading_whitespace_multiline_inline(runner);
   source_pos_inlines(runner);
   ref_source_pos(runner);
   inline_only_opt(runner);

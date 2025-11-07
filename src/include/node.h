@@ -82,6 +82,9 @@ struct cmark_node {
   int end_line;
   int end_column;
   int internal_offset;
+  int *line_offsets;
+  int line_offsets_len;
+  int line_offsets_alloc;
   uint16_t type;
   cmark_node_internal_flags flags;
   int backtick_count;

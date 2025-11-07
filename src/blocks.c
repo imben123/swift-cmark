@@ -228,6 +228,25 @@ static inline bool contains_inlines(cmark_node *node) {
           node->type == CMARK_NODE_HEADING);
 }
 
+static void S_append_line_offset(cmark_node *node, int column) {
+  if (node == NULL || !contains_inlines(node)) {
+    return;
+  }
+
+  cmark_mem *mem = cmark_node_mem(node);
+  if (node->line_offsets_len == node->line_offsets_alloc) {
+    int new_alloc = node->line_offsets_alloc ? node->line_offsets_alloc * 2 : 8;
+    int *new_data = (int *)mem->realloc(node->line_offsets,
+                                        (size_t)new_alloc * sizeof(int));
+    if (!new_data) {
+      return;
+    }
+    node->line_offsets = new_data;
+    node->line_offsets_alloc = new_alloc;
+  }
+  node->line_offsets[node->line_offsets_len++] = column;
+}
+
 static void add_line(cmark_node *node, cmark_chunk *ch, cmark_parser *parser) {
   int chars_to_tab;
   int i;
@@ -1452,6 +1471,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
       if ((parser->options & CMARK_OPT_PRESERVE_WHITESPACE) == 0)
         S_advance_offset(parser, input, parser->first_nonspace - parser->offset,
                        false);
+      S_append_line_offset(container, parser->first_nonspace_column);
       add_line(container, input, parser);
     } else {
       // create paragraph container for line
@@ -1464,6 +1484,7 @@ static void add_text_to_container(cmark_parser *parser, cmark_node *container,
         S_advance_offset(parser, input, parser->first_nonspace - parser->offset,
                            false);
       }
+      S_append_line_offset(container, parser->first_nonspace_column);
       add_line(container, input, parser);
     }
 

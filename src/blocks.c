@@ -626,9 +626,6 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
       // This also seems to be the limit for 'start' in some browsers.
     } while (digits < 9 && cmark_isdigit(peek_at(input, pos)));
 
-    if (interrupts_paragraph && start != 1) {
-      return 0;
-    }
     c = peek_at(input, pos);
     if (c == '.' || c == ')') {
       pos++;

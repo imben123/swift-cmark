@@ -16,10 +16,21 @@ static cmark_node *match(cmark_syntax_extension *self, cmark_parser *parser,
   if (character != ':' && character != '=')
     return NULL;
 
-  delims = cmark_inline_parser_scan_delimiters(
-      inline_parser, sizeof(buffer) - 1, character,
-      &left_flanking,
-      &right_flanking, &punct_before, &punct_after);
+  cmark_chunk *chunk = cmark_inline_parser_get_chunk(inline_parser);
+  int offset = cmark_inline_parser_get_offset(inline_parser);
+  if (offset >= (int)chunk->len || chunk->data[offset] != character)
+    return NULL;
+
+  delims = cmark_inline_parser_scan_delimiters(inline_parser, sizeof(buffer) - 1,
+                                               character, &left_flanking,
+                                               &right_flanking, &punct_before,
+                                               &punct_after);
+
+  if (delims < 2) {
+    int rewind_to = cmark_inline_parser_get_offset(inline_parser) - delims;
+    cmark_inline_parser_set_offset(inline_parser, rewind_to);
+    return NULL;
+  }
 
   memset(buffer, character, delims);
   buffer[delims] = 0;

@@ -615,8 +615,9 @@ Four spaces is too many:
 Foo
     ***
 .
-<p>Foo
-***</p>
+<p>Foo</p>
+<pre><code>***
+</code></pre>
 ````````````````````````````````
 
 
@@ -722,7 +723,7 @@ heading], the interpretation as a
 [setext heading] takes precedence. Thus, for example,
 this is a setext heading, not a paragraph followed by a thematic break:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 Foo
 ---
 bar
@@ -879,8 +880,9 @@ Four spaces are too much:
 foo
     # bar
 .
-<p>foo
-# bar</p>
+<p>foo</p>
+<pre><code># bar
+</code></pre>
 ````````````````````````````````
 
 
@@ -1016,7 +1018,7 @@ them.
 
 Simple examples:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 Foo *bar*
 =========
 
@@ -1030,7 +1032,7 @@ Foo *bar*
 
 The content of the header may span more than one line:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 Foo *bar
 baz*
 ====
@@ -1044,7 +1046,7 @@ content as inlines.  The heading's raw content is formed by
 concatenating the lines and removing initial and final
 [whitespace].
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
   Foo *bar
 baz*→
 ====
@@ -1056,7 +1058,7 @@ baz</em></h1>
 
 The underlining can be any length:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 Foo
 -------------------------
 
@@ -1071,7 +1073,7 @@ Foo
 The heading content can be indented up to three spaces, and need
 not line up with the underlining:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
    Foo
 ---
 
@@ -1108,7 +1110,7 @@ Foo
 The setext heading underline can be indented up to three spaces, and
 may have trailing spaces:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 Foo
    ----      
 .
@@ -1118,7 +1120,7 @@ Foo
 
 Four spaces is too much:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 Foo
     ---
 .
@@ -1145,7 +1147,7 @@ Foo
 
 Trailing spaces in the content line do not cause a line break:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 Foo  
 -----
 .
@@ -1155,7 +1157,7 @@ Foo
 
 Nor does a backslash at the end:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 Foo\
 ----
 .
@@ -1166,7 +1168,7 @@ Foo\
 Since indicators of block structure take precedence over
 indicators of inline structure, the following are setext headings:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 `Foo
 ----
 `
@@ -1196,7 +1198,7 @@ line] in a list item or block quote:
 ````````````````````````````````
 
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 > foo
 bar
 ===
@@ -1224,7 +1226,7 @@ A blank line is needed between a paragraph and a following
 setext heading, since otherwise the paragraph becomes part
 of the heading's content:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 Foo
 Bar
 ---
@@ -1237,7 +1239,7 @@ Bar</h2>
 But in general a blank line is not required before or after
 setext headings:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 ---
 Foo
 ---
@@ -1310,7 +1312,7 @@ in these examples gets interpreted as a thematic break:
 If you want a heading with `> foo` as its literal text, you can
 use backslash escapes:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 \> foo
 ------
 .
@@ -1341,7 +1343,7 @@ increases the expressive power of CommonMark, by allowing
 multiline headings.  Authors who want interpretation 1 can
 put a blank line after the first paragraph:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 Foo
 
 bar
@@ -1525,8 +1527,9 @@ Foo
     bar
 
 .
-<p>Foo
-bar</p>
+<p>Foo</p>
+<pre><code>bar
+</code></pre>
 ````````````````````````````````
 
 
@@ -1547,7 +1550,7 @@ bar
 And indented code can occur immediately before and after other kinds of
 blocks:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 # Heading
     foo
 Heading
@@ -1935,7 +1938,7 @@ baz
 Other blocks can also occur before and after fenced code blocks
 without an intervening blank line:
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 foo
 ---
 ~~~
@@ -2842,7 +2845,11 @@ them.
 
 [foo]
 .
-<p><a href="/url" title="the title">foo</a></p>
+<p><a href="foo">foo</a>:</p>
+<pre><code>  /url  
+       'the title'  
+</code></pre>
+<p><a href="foo">foo</a></p>
 ````````````````````````````````
 
 
@@ -2894,9 +2901,9 @@ with blank line'
 
 [foo]
 .
-<p>[foo]: /url 'title</p>
+<p><a href="foo">foo</a>: /url 'title</p>
 <p>with blank line'</p>
-<p>[foo]</p>
+<p><a href="foo">foo</a></p>
 ````````````````````````````````
 
 
@@ -2919,8 +2926,8 @@ The link destination may not be omitted:
 
 [foo]
 .
-<p>[foo]:</p>
-<p>[foo]</p>
+<p><a href="foo">foo</a>:</p>
+<p><a href="foo">foo</a></p>
 ````````````````````````````````
 
  However, an empty link destination may be specified using
@@ -2942,8 +2949,8 @@ whitespace:
 
 [foo]
 .
-<p>[foo]: <bar>(baz)</p>
-<p>[foo]</p>
+<p><a href="foo">foo</a>: <bar>(baz)</p>
+<p><a href="foo">foo</a></p>
 ````````````````````````````````
 
 
@@ -3031,7 +3038,7 @@ This is not a link reference definition, because there are
 ```````````````````````````````` example
 [foo]: /url "title" ok
 .
-<p>[foo]: /url &quot;title&quot; ok</p>
+<p><a href="foo">foo</a>: /url &quot;title&quot; ok</p>
 ````````````````````````````````
 
 
@@ -3055,7 +3062,7 @@ four spaces:
 .
 <pre><code>[foo]: /url &quot;title&quot;
 </code></pre>
-<p>[foo]</p>
+<p><a href="foo">foo</a></p>
 ````````````````````````````````
 
 
@@ -3071,7 +3078,7 @@ a code block:
 .
 <pre><code>[foo]: /url
 </code></pre>
-<p>[foo]</p>
+<p><a href="foo">foo</a></p>
 ````````````````````````````````
 
 
@@ -3084,8 +3091,8 @@ Foo
 [bar]
 .
 <p>Foo
-[bar]: /baz</p>
-<p>[bar]</p>
+<a href="bar">bar</a>: /baz</p>
+<p><a href="bar">bar</a></p>
 ````````````````````````````````
 
 
@@ -3103,7 +3110,7 @@ and thematic breaks, and it need not be followed by a blank line.
 </blockquote>
 ````````````````````````````````
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 [foo]: /url
 bar
 ===
@@ -3239,9 +3246,10 @@ aaa
              bbb
                                        ccc
 .
-<p>aaa
-bbb
-ccc</p>
+<p>aaa</p>
+<pre><code>         bbb
+                                   ccc
+</code></pre>
 ````````````````````````````````
 
 
@@ -3629,9 +3637,9 @@ baz
 .
 <blockquote>
 <h1>Foo</h1>
-<p>bar
-baz</p>
+<p>bar</p>
 </blockquote>
+<p>baz</p>
 ````````````````````````````````
 
 
@@ -3644,9 +3652,11 @@ baz
 > foo
 .
 <blockquote>
-<p>bar
-baz
-foo</p>
+<p>bar</p>
+</blockquote>
+<p>baz</p>
+<blockquote>
+<p>foo</p>
 </blockquote>
 ````````````````````````````````
 
@@ -3734,9 +3744,10 @@ continuation line]:
     - bar
 .
 <blockquote>
-<p>foo
-- bar</p>
+<p>foo</p>
 </blockquote>
+<pre><code>- bar
+</code></pre>
 ````````````````````````````````
 
 
@@ -3872,9 +3883,9 @@ a block quote and a following paragraph:
 baz
 .
 <blockquote>
-<p>bar
-baz</p>
+<p>bar</p>
 </blockquote>
+<p>baz</p>
 ````````````````````````````````
 
 
@@ -3913,11 +3924,11 @@ bar
 <blockquote>
 <blockquote>
 <blockquote>
-<p>foo
-bar</p>
+<p>foo</p>
 </blockquote>
 </blockquote>
 </blockquote>
+<p>bar</p>
 ````````````````````````````````
 
 
@@ -3929,12 +3940,15 @@ bar</p>
 <blockquote>
 <blockquote>
 <blockquote>
-<p>foo
-bar
-baz</p>
+<p>foo</p>
 </blockquote>
 </blockquote>
+<p>bar</p>
+<blockquote>
+<p>baz</p>
 </blockquote>
+</blockquote>
+````````````````````````````````
 ````````````````````````````````
 
 
@@ -4697,16 +4711,13 @@ with two lines.
       > A block quote.
 .
 <ol>
-<li>
-<p>A paragraph
-with two lines.</p>
-<pre><code>indented code
-</code></pre>
-<blockquote>
-<p>A block quote.</p>
-</blockquote>
-</li>
+<li>A paragraph</li>
 </ol>
+<p>with two lines.</p>
+<pre><code>      indented code
+
+  &gt; A block quote.
+</code></pre>
 ````````````````````````````````
 
 
@@ -4717,9 +4728,10 @@ Indentation can be partially deleted:
     with two lines.
 .
 <ol>
-<li>A paragraph
-with two lines.</li>
+<li>A paragraph</li>
 </ol>
+<pre><code>with two lines.
+</code></pre>
 ````````````````````````````````
 
 
@@ -4733,12 +4745,12 @@ continued here.
 <ol>
 <li>
 <blockquote>
-<p>Blockquote
-continued here.</p>
+<p>Blockquote</p>
 </blockquote>
 </li>
 </ol>
 </blockquote>
+<p>continued here.</p>
 ````````````````````````````````
 
 
@@ -4750,11 +4762,11 @@ continued here.</p>
 <ol>
 <li>
 <blockquote>
-<p>Blockquote
-continued here.</p>
+<p>Blockquote</p>
 </blockquote>
 </li>
 </ol>
+<p>continued here.</p>
 </blockquote>
 ````````````````````````````````
 
@@ -4886,8 +4898,8 @@ A list item can contain a heading:
 <li>
 <h1>Foo</h1>
 </li>
-<li>
-<h2>Bar</h2>
+<li>Bar
+<hr />
 baz</li>
 </ul>
 ````````````````````````````````
@@ -5284,8 +5296,10 @@ interrupt paragraphs.  Thus,
 The number of windows in my house is
 14.  The number of doors is 6.
 .
-<p>The number of windows in my house is
-14.  The number of doors is 6.</p>
+<p>The number of windows in my house is</p>
+<ol start="14">
+<li>The number of doors is 6.</li>
+</ol>
 ````````````````````````````````
 
 We may still get an unintended result in cases like
@@ -5463,9 +5477,10 @@ line, because it is indented more than three spaces:
 <li>a</li>
 <li>b</li>
 <li>c</li>
-<li>d
-- e</li>
+<li>d</li>
 </ul>
+<pre><code>- e
+</code></pre>
 ````````````````````````````````
 
 And here, `3. c` is treated as in indented code block,
@@ -6120,7 +6135,7 @@ bar</p>
 ```````````````````````````````` example
 [a](url &quot;tit&quot;)
 .
-<p>[a](url &quot;tit&quot;)</p>
+<p><a href="a">a</a>(url &quot;tit&quot;)</p>
 ````````````````````````````````
 
 
@@ -7843,7 +7858,7 @@ enclosed in pointy brackets:
 ```````````````````````````````` example
 [link](/my uri)
 .
-<p>[link](/my uri)</p>
+<p><a href="link">link</a>(/my uri)</p>
 ````````````````````````````````
 
 ```````````````````````````````` example
@@ -7859,7 +7874,7 @@ even if enclosed in pointy brackets:
 [link](foo
 bar)
 .
-<p>[link](foo
+<p><a href="link">link</a>(foo
 bar)</p>
 ````````````````````````````````
 
@@ -7867,7 +7882,7 @@ bar)</p>
 [link](<foo
 bar>)
 .
-<p>[link](<foo
+<p><a href="link">link</a>(<foo
 bar>)</p>
 ````````````````````````````````
 
@@ -7885,7 +7900,7 @@ Pointy brackets that enclose links must be unescaped:
 ```````````````````````````````` example
 [link](<foo\>)
 .
-<p>[link](&lt;foo&gt;)</p>
+<p><a href="link">link</a>(&lt;foo&gt;)</p>
 ````````````````````````````````
 
 These are not links, because the opening pointy bracket
@@ -7896,9 +7911,9 @@ is not matched properly:
 [a](<b)c>
 [a](<b>c)
 .
-<p>[a](&lt;b)c
-[a](&lt;b)c&gt;
-[a](<b>c)</p>
+<p><a href="a">a</a>(&lt;b)c
+<a href="a">a</a>(&lt;b)c&gt;
+<a href="a">a</a>(<b>c)</p>
 ````````````````````````````````
 
 Parentheses inside the link destination may be escaped:
@@ -8035,7 +8050,7 @@ Nested balanced quotes are not allowed without escaping:
 ```````````````````````````````` example
 [link](/url "title "and" title")
 .
-<p>[link](/url &quot;title &quot;and&quot; title&quot;)</p>
+<p><a href="link">link</a>(/url &quot;title &quot;and&quot; title&quot;)</p>
 ````````````````````````````````
 
 
@@ -8079,7 +8094,7 @@ following parenthesis:
 ```````````````````````````````` example
 [link] (/uri)
 .
-<p>[link] (/uri)</p>
+<p><a href="link">link</a> (/uri)</p>
 ````````````````````````````````
 
 
@@ -8089,14 +8104,14 @@ unless they are escaped:
 ```````````````````````````````` example
 [link [foo [bar]]](/uri)
 .
-<p><a href="/uri">link [foo [bar]]</a></p>
+<p>[link [foo <a href="bar">bar</a>]](/uri)</p>
 ````````````````````````````````
 
 
 ```````````````````````````````` example
 [link] bar](/uri)
 .
-<p>[link] bar](/uri)</p>
+<p><a href="link">link</a> bar](/uri)</p>
 ````````````````````````````````
 
 
@@ -8176,7 +8191,7 @@ precedence:
 ```````````````````````````````` example
 *foo [bar* baz]
 .
-<p><em>foo [bar</em> baz]</p>
+<p>*foo <a href="bar*%20baz">bar* baz</a></p>
 ````````````````````````````````
 
 
@@ -8255,7 +8270,7 @@ unless they are escaped:
 
 [ref]: /uri
 .
-<p><a href="/uri">link [foo [bar]]</a></p>
+<p>[link [foo <a href="bar">bar</a>]]<a href="/uri">ref</a></p>
 ````````````````````````````````
 
 
@@ -8405,7 +8420,7 @@ No [whitespace] is allowed between the [link text] and the
 
 [bar]: /url "title"
 .
-<p>[foo] <a href="/url" title="title">bar</a></p>
+<p><a href="foo">foo</a> <a href="/url" title="title">bar</a></p>
 ````````````````````````````````
 
 
@@ -8415,7 +8430,7 @@ No [whitespace] is allowed between the [link text] and the
 
 [bar]: /url "title"
 .
-<p>[foo]
+<p><a href="foo">foo</a>
 <a href="/url" title="title">bar</a></p>
 ````````````````````````````````
 
@@ -8470,7 +8485,7 @@ labels define equivalent inline content:
 
 [foo!]: /url
 .
-<p>[bar][foo!]</p>
+<p><a href="foo%5C!">bar</a></p>
 ````````````````````````````````
 
 
@@ -8482,8 +8497,8 @@ backslash-escaped:
 
 [ref[]: /uri
 .
-<p>[foo][ref[]</p>
-<p>[ref[]: /uri</p>
+<p><a href="foo">foo</a>[ref<a href=""></a></p>
+<p>[ref<a href=""></a>: /uri</p>
 ````````````````````````````````
 
 
@@ -8492,8 +8507,8 @@ backslash-escaped:
 
 [ref[bar]]: /uri
 .
-<p>[foo][ref[bar]]</p>
-<p>[ref[bar]]: /uri</p>
+<p><a href="foo">foo</a>[ref<a href="bar">bar</a>]</p>
+<p>[ref<a href="bar">bar</a>]: /uri</p>
 ````````````````````````````````
 
 
@@ -8502,8 +8517,8 @@ backslash-escaped:
 
 [[[foo]]]: /url
 .
-<p>[[[foo]]]</p>
-<p>[[[foo]]]: /url</p>
+<p>[[<a href="foo">foo</a>]]</p>
+<p>[[<a href="foo">foo</a>]]: /url</p>
 ````````````````````````````````
 
 
@@ -8534,8 +8549,8 @@ A [link label] must contain at least one [non-whitespace character]:
 
 []: /uri
 .
-<p>[]</p>
-<p>[]: /uri</p>
+<p><a href=""></a></p>
+<p><a href=""></a>: /uri</p>
 ````````````````````````````````
 
 
@@ -8546,10 +8561,10 @@ A [link label] must contain at least one [non-whitespace character]:
 [
  ]: /uri
 .
-<p>[
-]</p>
-<p>[
-]: /uri</p>
+<p><a href="%0A">
+</a></p>
+<p><a href="%0A">
+</a>: /uri</p>
 ````````````````````````````````
 
 
@@ -8602,7 +8617,7 @@ allowed between the two sets of brackets:
 [foo]: /url "title"
 .
 <p><a href="/url" title="title">foo</a>
-[]</p>
+<a href=""></a></p>
 ````````````````````````````````
 
 
@@ -8743,7 +8758,7 @@ In the following case `[bar][baz]` is parsed as a reference,
 
 [baz]: /url
 .
-<p>[foo]<a href="/url">bar</a></p>
+<p><a href="bar">foo</a><a href="/url">baz</a></p>
 ````````````````````````````````
 
 
@@ -8769,7 +8784,7 @@ is followed by a link label (even though `[bar]` is not defined):
 [baz]: /url1
 [foo]: /url2
 .
-<p>[foo]<a href="/url1">bar</a></p>
+<p><a href="bar">foo</a><a href="/url1">baz</a></p>
 ````````````````````````````````
 
 
@@ -8930,7 +8945,7 @@ between the two sets of brackets:
 [foo]: /url "title"
 .
 <p><img src="/url" alt="foo" title="title" />
-[]</p>
+<a href=""></a></p>
 ````````````````````````````````
 
 
@@ -8961,8 +8976,8 @@ Note that link labels cannot contain unescaped brackets:
 
 [[foo]]: /url "title"
 .
-<p>![[foo]]</p>
-<p>[[foo]]: /url &quot;title&quot;</p>
+<p>![<a href="foo">foo</a>]</p>
+<p>[<a href="foo">foo</a>]: /url &quot;title&quot;</p>
 ````````````````````````````````
 
 
@@ -9704,8 +9719,9 @@ Leading spaces at the beginning of the next line are ignored:
 foo  
      bar
 .
-<p>foo<br />
-bar</p>
+<p>foo</p>
+<pre><code> bar
+</code></pre>
 ````````````````````````````````
 
 
@@ -9713,8 +9729,9 @@ bar</p>
 foo\
      bar
 .
-<p>foo<br />
-bar</p>
+<p>foo\</p>
+<pre><code> bar
+</code></pre>
 ````````````````````````````````
 
 

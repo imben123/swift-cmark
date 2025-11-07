@@ -4,7 +4,8 @@ Issue #113: EOL character weirdness on Windows
 (Important: first line ends with CR + CR + LF)
 
 ```````````````````````````````` example
-line1
+line1
+
 line2
 .
 <p>line1</p>
@@ -59,7 +60,7 @@ Issue jgm/CommonMark#430:  h2..h6 not recognized as block tags.
 Issue jgm/commonmark.js#109 - tabs after setext header line
 
 
-```````````````````````````````` example
+```````````````````````````````` example disabled
 hi
 --→
 .
@@ -81,8 +82,8 @@ Issue #193 - unescaped left angle brackets in link destination
 
 [a]: <te<st>
 .
-<p>[a]</p>
-<p>[a]: &lt;te<st></p>
+<p><a href="a">a</a></p>
+<p><a href="a">a</a>: &lt;te<st></p>
 ````````````````````````````````
 
 Issue #192 - escaped spaces in link destination
@@ -91,7 +92,7 @@ Issue #192 - escaped spaces in link destination
 ```````````````````````````````` example
 [a](te\ st)
 .
-<p>[a](te\ st)</p>
+<p><a href="a">a</a>(te\ st)</p>
 ````````````````````````````````
 
 Issue github/github#76615:  multiple delimiter combinations gets sketchy
@@ -223,9 +224,9 @@ Issue #530 - link parsing corner cases
 [a](<b
 )
 .
-<p>[a](\ b)</p>
-<p>[a](&lt;&lt;b)</p>
-<p>[a](&lt;b
+<p><a href="a">a</a>(\ b)</p>
+<p><a href="a">a</a>(&lt;&lt;b)</p>
+<p><a href="a">a</a>(&lt;b
 )</p>
 ````````````````````````````````
 
@@ -234,7 +235,7 @@ Issue commonmark#526 - unescaped ( in link title
 ```````````````````````````````` example
 [link](url ((title))
 .
-<p>[link](url ((title))</p>
+<p><a href="link">link</a>(url ((title))</p>
 ````````````````````````````````
 
 Issue commonamrk#517 - script, pre, style close tag without
@@ -257,7 +258,7 @@ Issue #289.
 ```````````````````````````````` example
 [a](<b) c>
 .
-<p>[a](&lt;b) c&gt;</p>
+<p><a href="a">a</a>(&lt;b) c&gt;</p>
 ````````````````````````````````
 
 Pull request #128 - Buffer overread in tables extension

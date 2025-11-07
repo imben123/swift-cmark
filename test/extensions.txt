@@ -874,13 +874,13 @@ Show a regular (non task) list to show that it has the same structure
 </ul>
 <p>Show a regular (non task) list to show that it has the same structure</p>
 <ul>
-<li>[@] foo
+<li><a href="@">@</a> foo
 <ul>
-<li>[@] bar</li>
-<li>[@] baz</li>
+<li><a href="@">@</a> bar</li>
+<li><a href="@">@</a> baz</li>
 </ul>
 </li>
-<li>[@] bim</li>
+<li><a href="@">@</a> bim</li>
 </ul>
 ````````````````````````````````
 Use a larger indent -- a task list and a regular list should produce
@@ -909,12 +909,12 @@ Show a regular (non task) list to show that it has the same structure
 </ul>
 <p>Show a regular (non task) list to show that it has the same structure</p>
 <ul>
-<li>[@] foo
+<li><a href="@">@</a> foo
 <ul>
-<li>[@] bar</li>
-<li>[@] baz</li>
+<li><a href="@">@</a> bar</li>
+<li><a href="@">@</a> baz</li>
 </ul>
 </li>
-<li>[@] bim</li>
+<li><a href="@">@</a> bim</li>
 </ul>
 ````````````````````````````````

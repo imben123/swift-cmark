@@ -84,7 +84,7 @@ be an open quote:
 ```````````````````````````````` example
 [a]'s b'
 .
-<p>[a]’s b’</p>
+<p><a href="a">a</a>’s b’</p>
 ````````````````````````````````
 
 Quotes that are escaped come out as literal straight

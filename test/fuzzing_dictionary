@@ -52,6 +52,7 @@ underscore="_"
 
 strikethrough="~~~strike~~~"
 highlight="::highlight::"
+underline="++underline++"
 user_mention="@octocat"
 email_mention="octocat@github.com"
 http="http://"

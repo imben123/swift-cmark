@@ -62,19 +62,19 @@ if(Python3_Interpreter_FOUND)
                                                          --no-normalize
                                                          --spec "${CMAKE_CURRENT_SOURCE_DIR}/extensions.txt"
                                                          --program "$<TARGET_FILE:cmark-gfm>"
-                                                         --extensions "table strikethrough highlight autolink tagfilter footnotes tasklist")
+                                                         --extensions "table strikethrough highlight underline autolink tagfilter footnotes tasklist")
 
   add_test(NAME roundtrip_extensions_executable
            COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
                                                          --spec "${CMAKE_CURRENT_SOURCE_DIR}/extensions.txt"
                                                          --program "$<TARGET_FILE:cmark-gfm>"
-                                                         --extensions "table strikethrough highlight autolink tagfilter footnotes tasklist")
+                                                         --extensions "table strikethrough highlight underline autolink tagfilter footnotes tasklist")
 
   add_test(NAME option_table_prefer_style_attributes
            COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"
                                                          --spec "${CMAKE_CURRENT_SOURCE_DIR}/extensions-table-prefer-style-attributes.txt"
                                                          --program "$<TARGET_FILE:cmark-gfm> --table-prefer-style-attributes"
-                                                         --extensions "table strikethrough highlight autolink tagfilter footnotes tasklist")
+                                                         --extensions "table strikethrough highlight underline autolink tagfilter footnotes tasklist")
 
   add_test(NAME option_full_info_string
            COMMAND "$<TARGET_FILE:Python3::Interpreter>" "${CMAKE_CURRENT_SOURCE_DIR}/roundtrip_tests.py"

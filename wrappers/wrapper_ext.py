@@ -34,6 +34,7 @@ EXTENSIONS = (
   'table',
   'strikethrough',
   'highlight',
+  'underline',
   'tagfilter',
   )
 

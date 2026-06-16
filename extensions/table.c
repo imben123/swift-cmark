@@ -357,6 +357,15 @@ static table_row *row_from_string(cmark_syntax_extension *self,
         cell->cell_data->rowspan = 1;
       }
 
+      // An empty cell has no content, so its scanned position currently points
+      // at the following pipe delimiter (start_offset == end_offset == the pipe).
+      // Collapse the reported range to zero width so the delimiter character is
+      // not included in the cell's source range. This must happen after the span
+      // detection above, which relies on start_offset == end_offset.
+      if (cell_matched == 0 && cell->start_offset > 0) {
+        cell->end_offset = cell->start_offset - 1;
+      }
+
       // make sure we never wrap row->n_columns
       // offset will != len and our exit will clean up as intended
       if (row->n_columns == UINT16_MAX) {
@@ -491,6 +500,24 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
                                          header_row->paragraph_offset);
   }
 
+  // When the table is preceded by paragraph content on earlier lines (the
+  // `parent_string` spans multiple lines), the header row's cells are scanned
+  // with offsets measured from the start of the whole paragraph string. Source
+  // positions must instead be reported relative to the line the header row
+  // actually sits on, otherwise the column overflows past the end of the first
+  // line and the line number is wrong. `paragraph_offset` is the offset within
+  // `parent_string` at which the real table content begins.
+  int paragraph_offset = header_row->paragraph_offset;
+  int header_line_offset = 0;
+  for (int k = 0; k < paragraph_offset; ++k) {
+    if (parent_string[k] == '\n')
+      ++header_line_offset;
+  }
+  int header_start_line = parent_container->start_line + header_line_offset;
+  // Subtracting `paragraph_offset` rebases the cell offsets onto the header
+  // line; when there is no preceding content this is a no-op.
+  int header_column_base = parent_container->start_column - paragraph_offset;
+
   cmark_node_set_syntax_extension(parent_container, self);
   parent_container->as.opaque = parser->mem->calloc(1, sizeof(node_table));
   set_n_table_columns(parent_container, header_row->n_columns);
@@ -516,8 +543,8 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
       cmark_parser_add_child(parser, parent_container, CMARK_NODE_TABLE_ROW,
                              parent_container->start_column);
   cmark_node_set_syntax_extension(table_header, self);
-  table_header->end_column = parent_container->start_column + (int)strlen(parent_string) - 2;
-  table_header->start_line = table_header->end_line = parent_container->start_line;
+  table_header->end_column = header_column_base + (int)strlen(parent_string) - 2;
+  table_header->start_line = table_header->end_line = header_start_line;
 
   table_header->as.opaque = ntr = (node_table_row *)parser->mem->calloc(1, sizeof(node_table_row));
   ntr->is_header = true;
@@ -525,10 +552,10 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   for (i = 0; i < header_row->n_columns; ++i) {
     node_cell *cell = &header_row->cells[i];
     cmark_node *header_cell = cmark_parser_add_child(parser, table_header,
-        CMARK_NODE_TABLE_CELL, parent_container->start_column + cell->start_offset);
-    header_cell->start_line = header_cell->end_line = parent_container->start_line;
+        CMARK_NODE_TABLE_CELL, header_column_base + cell->start_offset);
+    header_cell->start_line = header_cell->end_line = header_start_line;
     header_cell->internal_offset = cell->internal_offset;
-    header_cell->end_column = parent_container->start_column + cell->end_offset;
+    header_cell->end_column = header_column_base + cell->end_offset;
     header_cell->as.opaque = cell->cell_data;
     cell->cell_data = NULL;
     cmark_node_set_string_content(header_cell, (char *) cell->buf->ptr);
@@ -537,6 +564,11 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   }
 
   incr_table_row_count(parent_container, i);
+
+  // Any preceding paragraph content was split off into its own paragraph node
+  // (see try_inserting_table_header_paragraph above), so move the table node's
+  // start position down onto the header line as well.
+  parent_container->start_line = header_start_line;
 
   cmark_parser_advance_offset(
       parser, (char *)input,

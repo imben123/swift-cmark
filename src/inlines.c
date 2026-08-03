@@ -1553,6 +1553,9 @@ match:
 // Assumes the subject has a cr or newline at the current position.
 static cmark_node *handle_newline(subject *subj) {
   bufsize_t nlpos = subj->pos;
+  int start_line = subj->line;
+  int start_column = nlpos + 1 + subj->column_offset + subj->block_offset;
+  cmark_node *nl;
   // skip over cr, crlf, or lf:
   if (peek_at(subj, subj->pos) == '\r') {
     advance(subj);
@@ -1567,10 +1570,19 @@ static cmark_node *handle_newline(subject *subj) {
   skip_spaces(subj);
   if (nlpos > 1 && peek_at(subj, nlpos - 1) == ' ' &&
       peek_at(subj, nlpos - 2) == ' ') {
-    return make_linebreak(subj->mem);
+    nl = make_linebreak(subj->mem);
   } else {
-    return make_softbreak(subj->mem);
+    nl = make_softbreak(subj->mem);
   }
+  // Record the full source range of the break, from the newline itself
+  // (and any preceding hard-break trailing spaces) through the leading
+  // indentation swallowed on the next line, so callers can identify and
+  // reconstruct the exact characters a SoftBreak/LineBreak node replaced.
+  nl->start_line = start_line;
+  nl->start_column = start_column;
+  nl->end_line = subj->line;
+  nl->end_column = subj->pos + subj->column_offset + subj->block_offset;
+  return nl;
 }
 
 // "\r\n\\`&_*[]<!"

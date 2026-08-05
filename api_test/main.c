@@ -1037,7 +1037,7 @@ static void source_pos(test_batch_runner *runner) {
                       "    <link sourcepos=\"3:15-3:37\" destination=\"http://www.google.com\" title=\"\">\n"
                       "      <text sourcepos=\"3:16-3:36\" xml:space=\"preserve\">http://www.google.com</text>\n"
                       "    </link>\n"
-                      "    <softbreak />\n"
+                      "    <softbreak sourcepos=\"3:38-4:0\" />\n"
                       "    <text sourcepos=\"4:1-4:6\" xml:space=\"preserve\">there </text>\n"
                       "    <code sourcepos=\"4:8-4:9\" xml:space=\"preserve\">hi</code>\n"
                       "    <text sourcepos=\"4:11-4:14\" xml:space=\"preserve\"> -- </text>\n"
@@ -1051,14 +1051,14 @@ static void source_pos(test_batch_runner *runner) {
                       "      <item sourcepos=\"6:3-8:1\">\n"
                       "        <paragraph sourcepos=\"6:6-7:10\">\n"
                       "          <text sourcepos=\"6:6-6:10\" xml:space=\"preserve\">Okay.</text>\n"
-                      "          <softbreak />\n"
+                      "          <softbreak sourcepos=\"6:11-7:5\" />\n"
                       "          <text sourcepos=\"7:6-7:10\" xml:space=\"preserve\">Sure.</text>\n"
                       "        </paragraph>\n"
                       "      </item>\n"
                       "      <item sourcepos=\"9:3-10:20\">\n"
                       "        <paragraph sourcepos=\"9:6-10:20\">\n"
                       "          <text sourcepos=\"9:6-9:15\" xml:space=\"preserve\">Yes, okay.</text>\n"
-                      "          <softbreak />\n"
+                      "          <softbreak sourcepos=\"9:16-10:5\" />\n"
                       "          <image sourcepos=\"10:6-10:20\" destination=\"hi\" title=\"yes\">\n"
                       "            <text sourcepos=\"10:8-10:9\" xml:space=\"preserve\">ok</text>\n"
                       "          </image>\n"
@@ -1072,7 +1072,7 @@ static void source_pos(test_batch_runner *runner) {
                       "    <text sourcepos=\"13:1-13:33\" xml:space=\"preserve\">what happens if we spread a link </text>\n"
                       "    <link sourcepos=\"13:34-14:14\" destination=\"http://example.com\" title=\"\">\n"
                       "      <text sourcepos=\"13:35-13:49\" xml:space=\"preserve\">across multiple</text>\n"
-                      "      <softbreak />\n"
+                      "      <softbreak sourcepos=\"13:50-14:0\" />\n"
                       "      <text sourcepos=\"14:1-14:5\" xml:space=\"preserve\">lines</text>\n"
                       "    </link>\n"
                       "  </paragraph>\n"
@@ -1094,7 +1094,7 @@ static void source_pos_leading_whitespace(test_batch_runner *runner) {
                       "    <strong sourcepos=\"1:2-1:8\">\n"
                       "      <text sourcepos=\"1:4-1:6\" xml:space=\"preserve\">foo</text>\n"
                       "    </strong>\n"
-                      "    <softbreak />\n"
+                      "    <softbreak sourcepos=\"1:9-2:0\" />\n"
                       "    <emph sourcepos=\"2:1-2:5\">\n"
                       "      <text sourcepos=\"2:2-2:4\" xml:space=\"preserve\">foo</text>\n"
                       "    </emph>\n"
@@ -1119,7 +1119,7 @@ static void source_pos_leading_whitespace_multiline_inline(test_batch_runner *ru
                       "id=&quot;foo&quot;&gt;</html_inline>\n"
                       "    <text sourcepos=\"2:10-2:12\" xml:space=\"preserve\">bar</text>\n"
                       "    <html_inline sourcepos=\"2:13-2:19\" xml:space=\"preserve\">&lt;/span&gt;</html_inline>\n"
-                      "    <softbreak />\n"
+                      "    <softbreak sourcepos=\"2:20-3:0\" />\n"
                       "    <text sourcepos=\"3:1-3:4\" xml:space=\"preserve\">text</text>\n"
                       "  </paragraph>\n"
                       "</document>\n",
@@ -1145,7 +1145,7 @@ static void source_pos_inlines(test_batch_runner *runner) {
                         "    <emph sourcepos=\"1:1-1:7\">\n"
                         "      <text sourcepos=\"1:2-1:6\" xml:space=\"preserve\">first</text>\n"
                         "    </emph>\n"
-                        "    <softbreak />\n"
+                        "    <softbreak sourcepos=\"1:8-2:0\" />\n"
                         "    <text sourcepos=\"2:1-2:6\" xml:space=\"preserve\">second</text>\n"
                         "  </paragraph>\n"
                         "  <paragraph sourcepos=\"4:4-4:23\">\n"
@@ -1171,7 +1171,7 @@ static void source_pos_inlines(test_batch_runner *runner) {
                         "  <paragraph sourcepos=\"1:1-2:7\">\n"
                         "    <emph sourcepos=\"1:1-2:7\">\n"
                         "      <text sourcepos=\"1:2-1:6\" xml:space=\"preserve\">first</text>\n"
-                        "      <softbreak />\n"
+                        "      <softbreak sourcepos=\"1:7-2:0\" />\n"
                         "      <text sourcepos=\"2:1-2:6\" xml:space=\"preserve\">second</text>\n"
                         "    </emph>\n"
                         "  </paragraph>\n"
@@ -1192,7 +1192,7 @@ static void source_pos_inlines(test_batch_runner *runner) {
                         "<document sourcepos=\"1:1-2:25\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
                         "  <paragraph sourcepos=\"1:1-2:25\">\n"
                         "    <text sourcepos=\"1:1-1:20\" xml:space=\"preserve\">` It is one backtick</text>\n"
-                        "    <softbreak />\n"
+                        "    <softbreak sourcepos=\"1:21-2:0\" />\n"
                         "    <text sourcepos=\"2:1-2:25\" xml:space=\"preserve\">`` They are two backticks</text>\n"
                         "  </paragraph>\n"
                         "</document>\n",
@@ -1222,6 +1222,88 @@ static void ref_source_pos(test_batch_runner *runner) {
                       "  </paragraph>\n"
                       "</document>\n",
          "sourcepos are as expected");
+  free(xml);
+  cmark_node_free(doc);
+}
+
+// A backslash hard break must keep the inline parser's line accounting in step,
+// the way the two-space form does.
+//
+// handle_backslash consumes the newline with skip_line_end() but skips all the
+// bookkeeping handle_newline() performs: ++subj->line, S_advance_line(), and
+// resetting subj->column_offset. So every inline after a backslash hard break is
+// reported as still being on the *previous* line, with the column running on
+// across the newline, until the next softbreak resyncs it. The LineBreak node
+// itself gets no sourcepos at all, because make_linebreak() is returned directly.
+//
+// The wrong columns are not merely wrong, they are past the end of the line they
+// name, so a consumer that indexes into that line by column reads out of bounds.
+static void source_pos_backslash_hard_break(test_batch_runner *runner) {
+  static const char markdown[] = "a\\\nb\nc\n";
+
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+  // "b" is on line 2, and the only softbreak is the newline after it, at 2:2.
+  // The linebreak spans the backslash through the newline it escapes; the
+  // two-space form leaves its spaces to the preceding text and covers only the
+  // newline, but here the backslash belongs to no other node.
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                      "<document sourcepos=\"1:1-3:1\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                      "  <paragraph sourcepos=\"1:1-3:1\">\n"
+                      "    <text sourcepos=\"1:1-1:1\" xml:space=\"preserve\">a</text>\n"
+                      "    <linebreak sourcepos=\"1:2-2:0\" />\n"
+                      "    <text sourcepos=\"2:1-2:1\" xml:space=\"preserve\">b</text>\n"
+                      "    <softbreak sourcepos=\"2:2-3:0\" />\n"
+                      "    <text sourcepos=\"3:1-3:1\" xml:space=\"preserve\">c</text>\n"
+                      "  </paragraph>\n"
+                      "</document>\n",
+         "backslash hard break keeps following sourcepos on the right line");
+  free(xml);
+  cmark_node_free(doc);
+}
+
+// The same defect with wider lines, to show the drift is a whole line rather
+// than a fixed offset, and that it clears at the first softbreak.
+static void source_pos_backslash_hard_break_multiline(test_batch_runner *runner) {
+  static const char markdown[] = "one two\\\nthree four\nfive\n";
+
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                      "<document sourcepos=\"1:1-3:4\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                      "  <paragraph sourcepos=\"1:1-3:4\">\n"
+                      "    <text sourcepos=\"1:1-1:7\" xml:space=\"preserve\">one two</text>\n"
+                      "    <linebreak sourcepos=\"1:8-2:0\" />\n"
+                      "    <text sourcepos=\"2:1-2:10\" xml:space=\"preserve\">three four</text>\n"
+                      "    <softbreak sourcepos=\"2:11-3:0\" />\n"
+                      "    <text sourcepos=\"3:1-3:4\" xml:space=\"preserve\">five</text>\n"
+                      "  </paragraph>\n"
+                      "</document>\n",
+         "backslash hard break line accounting over longer lines");
+  free(xml);
+  cmark_node_free(doc);
+}
+
+// The control: the two-space hard break form, which gets this right today.
+static void source_pos_two_space_hard_break(test_batch_runner *runner) {
+  static const char markdown[] = "a  \nb\nc\n";
+
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                      "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+                      "<document sourcepos=\"1:1-3:1\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+                      "  <paragraph sourcepos=\"1:1-3:1\">\n"
+                      "    <text sourcepos=\"1:1-1:3\" xml:space=\"preserve\">a</text>\n"
+                      "    <linebreak sourcepos=\"1:4-2:0\" />\n"
+                      "    <text sourcepos=\"2:1-2:1\" xml:space=\"preserve\">b</text>\n"
+                      "    <softbreak sourcepos=\"2:2-3:0\" />\n"
+                      "    <text sourcepos=\"3:1-3:1\" xml:space=\"preserve\">c</text>\n"
+                      "  </paragraph>\n"
+                      "</document>\n",
+         "two-space hard break keeps following sourcepos on the right line");
   free(xml);
   cmark_node_free(doc);
 }
@@ -1658,6 +1740,9 @@ int main() {
   source_pos_leading_whitespace_multiline_inline(runner);
   source_pos_inlines(runner);
   ref_source_pos(runner);
+  source_pos_backslash_hard_break(runner);
+  source_pos_backslash_hard_break_multiline(runner);
+  source_pos_two_space_hard_break(runner);
   inline_only_opt(runner);
   preserve_whitespace_opt(runner);
   verify_custom_attributes_node(runner);

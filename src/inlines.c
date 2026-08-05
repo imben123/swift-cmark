@@ -286,6 +286,23 @@ static inline bool skip_line_end(subject *subj) {
   return seen_line_end_char || is_eof(subj);
 }
 
+// Move the subject's line accounting onto the next line, once the line ending
+// itself has been consumed.
+//
+// Every path that steps over a newline owes this: the line number, the block
+// offset recorded for the new line (the container prefix and indentation the
+// block parser stripped from it), and the column origin. Miss it and columns
+// keep counting across the newline as though it were an ordinary character, so
+// inlines on the new line are reported against the previous one at columns past
+// that line's end.
+static inline void S_advance_past_line_end(subject *subj) {
+  ++subj->line;
+  S_advance_line(subj);
+  subj->column_offset = -subj->pos;
+  // skip spaces at beginning of line
+  skip_spaces(subj);
+}
+
 // Take characters while a predicate holds, and return a string.
 static inline cmark_chunk take_while(subject *subj, int (*f)(int)) {
   unsigned char c;
@@ -874,6 +891,8 @@ static delimiter *S_insert_emph(subject *subj, delimiter *opener,
 
 // Parse backslash-escape or just a backslash, returning an inline.
 static cmark_node *handle_backslash(cmark_parser *parser, subject *subj) {
+  int start_line = subj->line;
+  int start_column = subj->pos + 1 + subj->column_offset + subj->block_offset;
   advance(subj);
   unsigned char nextchar = peek_char(subj);
   if ((parser->backslash_ispunct ? parser->backslash_ispunct : cmark_ispunct)(nextchar)) {
@@ -881,7 +900,17 @@ static cmark_node *handle_backslash(cmark_parser *parser, subject *subj) {
     advance(subj);
     return make_str(subj, subj->pos - 2, subj->pos - 1, cmark_chunk_dup(&subj->input, subj->pos - 1, 1));
   } else if (!is_eof(subj) && skip_line_end(subj)) {
-    return make_linebreak(subj->mem);
+    // A backslash hard break ends its line just as a bare newline does, so the
+    // line accounting has to move on with it — see S_advance_past_line_end.
+    cmark_node *nl = make_linebreak(subj->mem);
+    S_advance_past_line_end(subj);
+    // Unlike the two-space form, whose spaces stay inside the preceding text
+    // node, the backslash belongs to no other node, so the break covers it.
+    nl->start_line = start_line;
+    nl->start_column = start_column;
+    nl->end_line = subj->line;
+    nl->end_column = subj->pos + subj->column_offset + subj->block_offset;
+    return nl;
   } else {
     return make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("\\"));
   }
@@ -1563,11 +1592,7 @@ static cmark_node *handle_newline(subject *subj) {
   if (peek_at(subj, subj->pos) == '\n') {
     advance(subj);
   }
-  ++subj->line;
-  S_advance_line(subj);
-  subj->column_offset = -subj->pos;
-  // skip spaces at beginning of line
-  skip_spaces(subj);
+  S_advance_past_line_end(subj);
   if (nlpos > 1 && peek_at(subj, nlpos - 1) == ' ' &&
       peek_at(subj, nlpos - 2) == ' ') {
     nl = make_linebreak(subj->mem);
